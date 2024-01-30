@@ -41,6 +41,7 @@ public class AllActivitiesActivity extends AppCompatActivity {
 
         ArrayList<String> list= new ArrayList<>();
         list.add(".MainActivity");
+        list.add(".ButtonListActivity");
 
 
         for(String item : list) {
