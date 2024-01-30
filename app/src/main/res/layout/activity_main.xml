@@ -7,6 +7,14 @@
     android:orientation="vertical"
     tools:context="cc.chenhe.lib.androidlua.demo.MainActivity">
 
+    <Button
+        android:id="@+id/btnAllActivities"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="@string/all_activities" />
+
     <EditText
         android:id="@+id/textView"
         android:layout_width="match_parent"

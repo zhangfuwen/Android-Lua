@@ -10,4 +10,5 @@
     <string name="call_lua_fun">call lua fun</string>
     <string name="inject_java_obj">inject java object</string>
     <string name="lua_callback">lua callback</string>
+    <string name="all_activities">all activities</string>
 </resources>
