@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import fun.xjbcode.llamaqwen.NativeLib;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -111,6 +112,14 @@ public class ChatBoxActivity extends AppCompatActivity {
                 msg.side= BasicChatMessage.Side.RIGHT;
                 chatBoxView.addMessage(msg);
                 editText.setText("");
+                String response = new NativeLib().stringFromJNI();
+                {
+                    BasicChatMessage msg1 = new BasicChatMessage();
+                    msg1.text = response;
+                    msg1.side = BasicChatMessage.Side.LEFT;
+                    chatBoxView.addMessage(msg1);
+                }
+
             }
         });
     }

@@ -4,7 +4,7 @@ android {
     compileSdkVersion 31
     defaultConfig {
         applicationId "cc.chenhe.lib.androidlua.demo"
-        minSdkVersion 14
+        minSdkVersion 24
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -34,5 +34,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation project(':androidlua')
+    implementation project(':llamaqwen1')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }
