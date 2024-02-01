@@ -1,5 +1,6 @@
 package fun.xjbcode.glm4;
 
+
 //import com.fasterxml.jackson.annotation.JsonInclude;
 //import com.fasterxml.jackson.core.JsonProcessingException;
 //import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -23,6 +24,9 @@ package fun.xjbcode.glm4;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+//import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +70,18 @@ public class ChatAPI {
         final String url = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
         try {
             String res = post(url, "{ \"model\":\"glm-4\", \"messages\":[{\"role\":\"user\", \"content\":\"hello\"}] }");
-            return res;
+            Gson gson = new Gson();
+            Map<String, Object> obj = gson.fromJson(res, new TypeToken<Map<String, Object>>(){});
+            List<Object> choices = (List<Object>)obj.get("choices");
+            Map<String, Map<String, String>> choice0 = (Map<String, Map<String, String>>)choices.get(0);
+            Map<String, String> message0 = choice0.get("message");
+            String content = message0.get("content");
+
+            Map<String, Double> usage = (Map<String, Double>)obj.get("usage");
+            double totalTokens = usage.get("total_tokens");
+
+
+            return content+", total_tokens:" + String.valueOf(totalTokens);
         } catch (IOException e) {
             e.printStackTrace();
         }
