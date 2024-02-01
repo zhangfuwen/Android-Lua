@@ -25,13 +25,11 @@ package fun.xjbcode.glm4;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 //import com.squareup.moshi.Moshi;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -47,7 +45,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 //import top.pulselink.chatglm.ChatClient;
 
@@ -60,6 +57,17 @@ public class ChatAPI {
 //    private static final ObjectMapper mapper = defaultObjectMapper();
 
     private static final String requestIdTemplate = "mycompany-%d";
+
+    class Message {
+        private String role="user";
+        private String content ="";
+    }
+    class PostObject {
+        private String stream="true";
+        private String model="glm-4";
+        private ArrayList<Message> messages = new ArrayList<>();
+    }
+    private PostObject object = new PostObject();
 //    public static ObjectMapper defaultObjectMapper() {
 //        ObjectMapper mapper = new ObjectMapper();
 //        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -84,23 +92,17 @@ public class ChatAPI {
     public void setCallback(ChatCallback callback) {
         m_callback = callback;
     }
+
     public String Chat(String input) {
 
         final String url = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
         try {
-            String res = post(url, "{ \"stream\":\"true\", \"model\":\"glm-4\", \"messages\":[{\"role\":\"user\", \"content\":\""+input+"\"}] }");
-//            Gson gson = new Gson();
-//            Map<String, Object> obj = gson.fromJson(res, new TypeToken<Map<String, Object>>(){});
-//            List<Object> choices = (List<Object>)obj.get("choices");
-//            Map<String, Map<String, String>> choice0 = (Map<String, Map<String, String>>)choices.get(0);
-//            Map<String, String> message0 = choice0.get("message");
-//            String content = message0.get("content");
-//
-//            Map<String, Double> usage = (Map<String, Double>)obj.get("usage");
-//            double totalTokens = usage.get("total_tokens");
-//
-//
-//            return content+", \n# total_tokens:" + String.valueOf(totalTokens);
+            Gson gson = new Gson();
+            Message msg = new Message();
+            msg.content = input;
+            object.messages.add(msg);
+            String json = gson.toJson(object);
+            String res = post(url, json);
             return res;
         } catch (IOException e) {
             e.printStackTrace();
@@ -155,6 +157,7 @@ public class ChatAPI {
                 byte[] all_buffer = new byte[32000];
                 int readLen = ins.read(all_buffer);
                 int totalReadLen = 0;
+                String lastContent=null;
                 while (readLen > 0) {
                     totalReadLen+=readLen;
                     String res = new String(all_buffer);
@@ -194,10 +197,15 @@ public class ChatAPI {
 
                     }
                     readLen = ins.read(all_buffer, totalReadLen, all_buffer.length-totalReadLen);
+                    lastContent = allContent;
                 }
-//                if(m_callback!=null) {
-//                    m_callback.onResponse("assistant:" + response.body().string());
-//                }
+                if (lastContent!=null) {
+                    Message msg = new Message();
+                    msg.role="assistant";
+                    msg.content = lastContent;
+                    object.messages.add(msg);
+                }
+
             }
         });
         return "";
