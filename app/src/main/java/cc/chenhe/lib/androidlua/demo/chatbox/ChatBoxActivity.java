@@ -2,6 +2,7 @@ package cc.chenhe.lib.androidlua.demo.chatbox;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -16,10 +17,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+import fun.xjbcode.glm4.ChatAPI;
+
 @SuppressLint("SetTextI18n")
 public class ChatBoxActivity extends AppCompatActivity {
 
     LinearLayout m_layout = null;
+
+    private final ChatAPI chatapi = new ChatAPI();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,10 @@ public class ChatBoxActivity extends AppCompatActivity {
         LinearLayout m_layout = new LinearLayout(this);
         m_layout.setOrientation(LinearLayout.VERTICAL);
         setContentView(m_layout);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
 
         ArrayList<String> list = new ArrayList<>();
         list.add(".MainActivity");
@@ -112,12 +121,13 @@ public class ChatBoxActivity extends AppCompatActivity {
                 msg.side= BasicChatMessage.Side.RIGHT;
                 chatBoxView.addMessage(msg);
                 editText.setText("");
-                String response = new NativeLib().stringFromJNI();
+                String response = chatapi.Chat(msg.text);
                 {
                     BasicChatMessage msg1 = new BasicChatMessage();
                     msg1.text = response;
                     msg1.side = BasicChatMessage.Side.LEFT;
                     chatBoxView.addMessage(msg1);
+
                 }
 
             }

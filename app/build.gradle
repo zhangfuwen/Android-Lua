@@ -35,5 +35,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation project(':androidlua')
     implementation project(':llamaqwen1')
+    implementation project(':glm4')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 }

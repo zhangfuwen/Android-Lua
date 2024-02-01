@@ -1,2 +1,3 @@
 include ':app', ':androidlua'
 include ':llamaqwen1'
+include ':glm4'
