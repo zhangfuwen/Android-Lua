@@ -22,7 +22,7 @@ public class ChatBoxView extends LinearLayout {
     }
     public void addMessage(BasicChatMessage msg) {
         m_messages.add(msg);
-        m_recyclerView.scrollToPosition(m_messages.size()-1);
+        m_recyclerView.scrollToPosition(m_messages.size());
     }
 
     public void updateLastMessage() {
@@ -35,6 +35,7 @@ public class ChatBoxView extends LinearLayout {
         this.setOrientation(LinearLayout.VERTICAL);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getContext());
         m_recyclerView = new RecyclerView(this.getContext());
+        m_recyclerView.setPadding(20,20,28,20);
         m_recyclerView.setLayoutManager(layoutManager);
         RecyclerView.Adapter adapter = new RecyclerView.Adapter() {
             @NonNull
