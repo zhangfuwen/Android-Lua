@@ -9,7 +9,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+
 import cc.chenhe.lib.androidlua.demo.R;
+import io.noties.markwon.Markwon;
 
 class BasicMessageView extends LinearLayout {
     TextView m_text;
@@ -17,7 +19,12 @@ class BasicMessageView extends LinearLayout {
 
     public void setMessage(BasicChatMessage msg) {
         m_msg = msg;
-        m_text.setText(m_msg.text);
+        final Markwon markwon = Markwon.create(this.getContext());
+
+// set markdown
+        markwon.setMarkdown(m_text, m_msg.text);
+
+//        m_text.setText(m_msg.text);
     }
 
     public BasicMessageView(Context context) {

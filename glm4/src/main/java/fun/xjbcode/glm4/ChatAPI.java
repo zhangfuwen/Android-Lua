@@ -25,21 +25,29 @@ package fun.xjbcode.glm4;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 //import com.squareup.moshi.Moshi;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 //import top.pulselink.chatglm.ChatClient;
 
@@ -65,23 +73,35 @@ public class ChatAPI {
     public ChatAPI() {
 
     }
+
+    public interface ChatCallback {
+        public void onFailure(String msg);
+        public void onResponse(String msg);
+        public void onFinish();
+    }
+
+    private ChatCallback m_callback;
+    public void setCallback(ChatCallback callback) {
+        m_callback = callback;
+    }
     public String Chat(String input) {
 
         final String url = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
         try {
-            String res = post(url, "{ \"model\":\"glm-4\", \"messages\":[{\"role\":\"user\", \"content\":\"hello\"}] }");
-            Gson gson = new Gson();
-            Map<String, Object> obj = gson.fromJson(res, new TypeToken<Map<String, Object>>(){});
-            List<Object> choices = (List<Object>)obj.get("choices");
-            Map<String, Map<String, String>> choice0 = (Map<String, Map<String, String>>)choices.get(0);
-            Map<String, String> message0 = choice0.get("message");
-            String content = message0.get("content");
-
-            Map<String, Double> usage = (Map<String, Double>)obj.get("usage");
-            double totalTokens = usage.get("total_tokens");
-
-
-            return content+", total_tokens:" + String.valueOf(totalTokens);
+            String res = post(url, "{ \"stream\":\"true\", \"model\":\"glm-4\", \"messages\":[{\"role\":\"user\", \"content\":\""+input+"\"}] }");
+//            Gson gson = new Gson();
+//            Map<String, Object> obj = gson.fromJson(res, new TypeToken<Map<String, Object>>(){});
+//            List<Object> choices = (List<Object>)obj.get("choices");
+//            Map<String, Map<String, String>> choice0 = (Map<String, Map<String, String>>)choices.get(0);
+//            Map<String, String> message0 = choice0.get("message");
+//            String content = message0.get("content");
+//
+//            Map<String, Double> usage = (Map<String, Double>)obj.get("usage");
+//            double totalTokens = usage.get("total_tokens");
+//
+//
+//            return content+", \n# total_tokens:" + String.valueOf(totalTokens);
+            return res;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -117,9 +137,70 @@ public class ChatAPI {
                 .header("Authorization", token)
                 .post(body)
                 .build();
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        }
+//        try (Response response = client.newCall(request).execute()) {
+//            return response.body().string();
+//        }
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                if(m_callback!=null) {
+                    m_callback.onFailure(e.getMessage());
+                }
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                InputStream ins = response.body().byteStream();
+                byte[] all_buffer = new byte[32000];
+                int readLen = ins.read(all_buffer);
+                int totalReadLen = 0;
+                while (readLen > 0) {
+                    totalReadLen+=readLen;
+                    String res = new String(all_buffer);
+                    String allContent="";
+
+                    String[] segments= res.split("\n\n");
+                    Gson gson = new Gson();
+                    for(String seg : segments) {
+                        System.out.println("seg:" + seg);
+                        try {
+                            if(seg.startsWith("data:")) {
+                                String payload =seg.substring(6);
+                                Map<String, Object> obj = gson.fromJson(payload, new TypeToken<Map<String, Object>>() {
+                                });
+                                List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
+                                Map<String, Object> choice1 = choices.get(0);
+                                Map<String, String> msg = (Map<String, String>) choice1.get("delta");
+                                String content = msg.get("content");
+                                allContent+=content;
+                                System.out.println("success:" + seg);
+                            } else {
+//                                m_callback.onFinish();;
+                                System.out.println("failed to parse: "+seg);
+                            }
+                        } catch (Exception e) {
+//                            m_callback.onResponse(allContent);
+//                            m_callback.onFinish();;
+                            System.out.println("failed to parse: "+seg);
+                        }
+                    }
+                    m_callback.onResponse(allContent);
+                    System.out.println("allContent:" + allContent);
+                    System.out.println("res:" + res);
+                    try{
+                        Thread.currentThread().sleep(200);
+                    }catch (Exception e) {
+
+                    }
+                    readLen = ins.read(all_buffer, totalReadLen, all_buffer.length-totalReadLen);
+                }
+//                if(m_callback!=null) {
+//                    m_callback.onResponse("assistant:" + response.body().string());
+//                }
+            }
+        });
+        return "";
     }
 
 //    public String Chat(String input) {

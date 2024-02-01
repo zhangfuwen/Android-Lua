@@ -24,6 +24,12 @@ public class ChatBoxView extends LinearLayout {
         m_messages.add(msg);
         m_recyclerView.scrollToPosition(m_messages.size()-1);
     }
+
+    public void updateLastMessage() {
+//        m_messages.set(m_messages.size()-1,msg);
+        m_recyclerView.scrollToPosition(m_messages.size()-1);
+        m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
+    }
     public ChatBoxView(Context context) {
         super(context);
         this.setOrientation(LinearLayout.VERTICAL);

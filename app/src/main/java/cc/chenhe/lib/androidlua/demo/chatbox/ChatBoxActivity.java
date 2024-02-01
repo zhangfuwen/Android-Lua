@@ -121,14 +121,48 @@ public class ChatBoxActivity extends AppCompatActivity {
                 msg.side= BasicChatMessage.Side.RIGHT;
                 chatBoxView.addMessage(msg);
                 editText.setText("");
-                String response = chatapi.Chat(msg.text);
-                {
-                    BasicChatMessage msg1 = new BasicChatMessage();
-                    msg1.text = response;
-                    msg1.side = BasicChatMessage.Side.LEFT;
-                    chatBoxView.addMessage(msg1);
 
-                }
+                BasicChatMessage m_msg1 = new BasicChatMessage();
+                m_msg1.side= BasicChatMessage.Side.LEFT;
+                m_msg1.text = "";
+                chatBoxView.addMessage(m_msg1);
+                chatapi.setCallback(new ChatAPI.ChatCallback() {
+                    String m_msg="";
+                    @Override
+                    public void onFailure(String msg) {
+                        Log.e("xxx", "failure:"+msg);
+                        m_msg1.text=msg;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                chatBoxView.updateLastMessage();;
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onResponse(String msg) {
+                        Log.e("xxx", "response:"+msg);
+                        m_msg = msg;
+                        m_msg1.side = BasicChatMessage.Side.LEFT;
+                        m_msg1.text = msg;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                chatBoxView.updateLastMessage();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        Log.e("xxx", "finish");
+
+                    }
+                });
+                chatapi.Chat(msg.text);
 
             }
         });

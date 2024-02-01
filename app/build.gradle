@@ -37,4 +37,5 @@ dependencies {
     implementation project(':llamaqwen1')
     implementation project(':glm4')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation "io.noties.markwon:core:4.6.2"
 }
