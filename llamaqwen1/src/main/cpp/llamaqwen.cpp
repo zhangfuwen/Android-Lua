@@ -1,6 +1,5 @@
 #include <jni.h>
 #include <string>
-#include "llama.h"
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_fun_xjbcode_llamaqwen_NativeLib_stringFromJNI(
@@ -11,6 +10,9 @@ Java_fun_xjbcode_llamaqwen_NativeLib_stringFromJNI(
     return env->NewStringUTF(hello.c_str());
 }
 
+#if HAS_LLAMA_CPP
+
+#include "llama.h"
 #include <android/log.h>
 #include <jni.h>
 #include <iomanip>
@@ -405,3 +407,5 @@ JNIEXPORT void JNICALL
 Java_com_example_llama_Llm_kv_1cache_1clear(JNIEnv *, jobject, jlong context) {
     llama_kv_cache_clear(reinterpret_cast<llama_context *>(context));
 }
+
+#endif
