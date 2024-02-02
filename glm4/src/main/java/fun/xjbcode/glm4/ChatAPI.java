@@ -228,6 +228,7 @@ public class ChatAPI {
                                         allContent+= "name--" +name+"\n";
                                         allContent+= "arguments--" +argumentMap.get("script")+"\n";
                                         m_callback.onLua(argumentMap.get("script"));
+//                                        return;
 
                                     }
                                     allContent+= tool_calls.toString();

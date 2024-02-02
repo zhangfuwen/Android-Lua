@@ -8,6 +8,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.keplerproject.luajava.LuaState;
 import org.keplerproject.luajava.LuaStateFactory;
 
+import cc.chenhe.lib.androidlua.demo.chatbox.ToolMessageView;
+
 public class MyApplication extends Application {
 
     private LuaState lua = null;
@@ -23,6 +25,7 @@ public class MyApplication extends Application {
     public void onMessageEvent(String script) {
         lua.LdoString(script);
         String out = lua.toString(-1);
+        EventBus.getDefault().post(new ToolMessageView.ToolResultEvent(out));
         System.out.println("lua output :" + out);
     }
 }

@@ -166,7 +166,13 @@ public class ChatBoxActivity extends AppCompatActivity {
 
                     @Override
                     public void onLua(String script) {
-                        EventBus.getDefault().post(script);
+//                        EventBus.getDefault().post(script);
+                        System.out.println("onLua");
+                        ToolMessageView.ToolMessage msg = new ToolMessageView.ToolMessage();
+                        msg.side= BasicChatMessage.Side.LEFT;
+                        msg.text = "# 工具调用";
+                        msg.code = script;
+                        chatBoxView.addMessage(msg);
                     }
                 });
                 chatapi.Chat(msg.text);
