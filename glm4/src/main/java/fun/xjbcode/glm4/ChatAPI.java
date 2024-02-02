@@ -87,6 +87,7 @@ public class ChatAPI {
     public interface ChatCallback {
         public void onFailure(String msg);
         public void onResponse(String msg);
+                void onLua(String script);
         public void onFinish();
     }
 
@@ -226,6 +227,7 @@ public class ChatAPI {
                                         Map<String,String> argumentMap = gson.fromJson(arguments, new TypeToken<Map<String, String>>(){});
                                         allContent+= "name--" +name+"\n";
                                         allContent+= "arguments--" +argumentMap.get("script")+"\n";
+                                        m_callback.onLua(argumentMap.get("script"));
 
                                     }
                                     allContent+= tool_calls.toString();

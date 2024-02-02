@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.keplerproject.luajava.LuaState;
 import org.keplerproject.luajava.LuaStateFactory;
 
@@ -39,9 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> codeSnippets = new ArrayList<String>();
     private Wrapper w = new Wrapper();
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        EventBus.getDefault().register(this);
+
         setContentView(R.layout.activity_main);
 
         Button button = findViewById(R.id.btnAllActivities);
@@ -194,4 +201,10 @@ public class MainActivity extends AppCompatActivity {
         }
         return "err";
     }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        EventBus.getDefault().unregister(this);
+//    }
 }

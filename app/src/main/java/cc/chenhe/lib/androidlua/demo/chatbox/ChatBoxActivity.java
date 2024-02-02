@@ -15,6 +15,8 @@ import fun.xjbcode.llamaqwen.NativeLib;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 
 import fun.xjbcode.glm4.ChatAPI;
@@ -160,6 +162,11 @@ public class ChatBoxActivity extends AppCompatActivity {
                     public void onFinish() {
                         Log.e("xxx", "finish");
 
+                    }
+
+                    @Override
+                    public void onLua(String script) {
+                        EventBus.getDefault().post(script);
                     }
                 });
                 chatapi.Chat(msg.text);

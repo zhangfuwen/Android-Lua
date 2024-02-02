@@ -38,4 +38,5 @@ dependencies {
     implementation project(':glm4')
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation "io.noties.markwon:core:4.6.2"
+    implementation("org.greenrobot:eventbus:3.3.1")
 }
