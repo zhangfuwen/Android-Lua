@@ -1,6 +1,6 @@
 package fun.xjbcode.glm4;
 
-
+import com.google.gson.annotations.Expose;
 //import com.fasterxml.jackson.annotation.JsonInclude;
 //import com.fasterxml.jackson.core.JsonProcessingException;
 //import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -65,8 +65,10 @@ public class ChatAPI {
     class PostObject {
         private String stream="true";
         private String model="glm-4";
-        private ArrayList<Message> messages = new ArrayList<>();
+        private List<Object> tools=new ArrayList<>();
+        private List<Message> messages = new ArrayList<>();
     }
+
     private PostObject object = new PostObject();
 //    public static ObjectMapper defaultObjectMapper() {
 //        ObjectMapper mapper = new ObjectMapper();
@@ -101,6 +103,41 @@ public class ChatAPI {
             Message msg = new Message();
             msg.content = input;
             object.messages.add(msg);
+            String tool = "{" +
+                    "\"type\":\"function\","+
+                    "\"name\":\"lua_eval\","+
+                    "\"description\":\"执行lua脚本\","+
+                    "\"parameters\":{" +
+                            "\"type\":\"object\","+
+                            "\"properties\":{" +
+                                "\"script\":{" +
+                                    "\"type\":\"string\","+
+                                    "\"description\":\"要执行的lua脚本\","+
+                                "},"+
+                            "},"+
+                        "},"+
+                    "}";
+            String tool1="{\n" +
+                    "   \"type\":\"function\",\n" +
+                    "   \"function\":{\n" +
+                    "      \"name\":\"lua_eval\",\n" +
+                    "      \"description\":\"执行lua脚本\",\n" +
+                    "      \"parameters\":{\n" +
+                    "         \"type\":\"object\",\n" +
+                    "         \"properties\":{\n" +
+                    "            \"script\":{\n" +
+                    "               \"type\":\"string\",\n" +
+                    "               \"description\":\"要执行的lua脚本\"\n" +
+                    "            }\n" +
+                    "         }\n" +
+                    "      }\n" +
+                    "   }\n" +
+                    "}";
+
+            System.out.println("tool is:"+tool);
+            Class<Object> x = Object.class;
+            Object o = gson.fromJson(tool1, x);
+            object.tools.add(o);
             String json = gson.toJson(object);
             String res = post(url, json);
             return res;
@@ -174,9 +211,25 @@ public class ChatAPI {
                                 });
                                 List<Map<String, Object>> choices = (List<Map<String, Object>>) obj.get("choices");
                                 Map<String, Object> choice1 = choices.get(0);
-                                Map<String, String> msg = (Map<String, String>) choice1.get("delta");
-                                String content = msg.get("content");
-                                allContent+=content;
+                                Map<String, Object> msg = (Map<String, Object>) choice1.get("delta");
+                                String content = (String)msg.get("content");
+                                List<Object> tool_calls = (List<Object>)msg.get("tool_calls");
+                                if(content!=null) {
+                                    allContent+=content;
+                                }
+                                if (tool_calls!=null && tool_calls.size()!=0) {
+                                    Map<String, Object> tool_call = (Map<String,Object>)tool_calls.get(0);
+                                    if (tool_call.get("type").equals("function")) {
+                                        Map<String,String> function = (Map<String,String>)tool_call.get("function");
+                                        String name = function.get("name");
+                                        String arguments = function.get("arguments");
+                                        Map<String,String> argumentMap = gson.fromJson(arguments, new TypeToken<Map<String, String>>(){});
+                                        allContent+= "name--" +name+"\n";
+                                        allContent+= "arguments--" +argumentMap.get("script")+"\n";
+
+                                    }
+                                    allContent+= tool_calls.toString();
+                                }
                                 System.out.println("success:" + seg);
                             } else {
 //                                m_callback.onFinish();;
