@@ -63,6 +63,9 @@ public class ChatBoxView extends LinearLayout {
                     ToolMessageView.ToolMessage toolMessage = (ToolMessageView.ToolMessage) m_messages.get(position);
                     msg.text = toolMessage.text + "\n```lua\n" +toolMessage.code +"\n```\n"+ toolMessage.result;
                     view.setMessage(msg);
+                    ToolMessageView toolMessageView = new ToolMessageView(getContext());
+                    toolMessageView.setMessage(toolMessage);
+                    view.setCustomView(toolMessageView);
 
                 } else {
                     view.setMessage(m_messages.get(position));

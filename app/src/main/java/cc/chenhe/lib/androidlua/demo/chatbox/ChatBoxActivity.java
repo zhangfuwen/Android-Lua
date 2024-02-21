@@ -11,11 +11,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import fun.xjbcode.llamaqwen.NativeLib;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -28,9 +32,20 @@ public class ChatBoxActivity extends AppCompatActivity {
 
     private final ChatAPI chatapi = new ChatAPI();
 
+    EditText editText = null;
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(ToolMessageView.ToolResultEvent event) {
+        Log.e("toolrun", "got event:" + event.result);
+        if (editText!= null) {
+            editText.setText("tool response:\n"+ event.result);
+        }
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
 
         LinearLayout m_layout = new LinearLayout(this);
         m_layout.setOrientation(LinearLayout.VERTICAL);
@@ -102,7 +117,7 @@ public class ChatBoxActivity extends AppCompatActivity {
         m_layout.addView(textEditRow);
         textEditRow.setGravity(Gravity.BOTTOM);
 
-        EditText editText = new EditText(this);
+        editText = new EditText(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -173,6 +188,7 @@ public class ChatBoxActivity extends AppCompatActivity {
                         msg.text = "# 工具调用";
                         msg.code = script;
                         chatBoxView.addMessage(msg);
+                        chatBoxView.updateLastMessage();
                     }
                 });
                 chatapi.Chat(msg.text);

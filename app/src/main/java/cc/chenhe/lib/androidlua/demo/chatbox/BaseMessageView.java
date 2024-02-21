@@ -24,6 +24,7 @@ class BasicMessageView extends LinearLayout {
     public void setCustomView(View view) {
         customView = view;
         if (customView != null) {
+            this.removeView(m_text);
             addView(view);
         }
     }

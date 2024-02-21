@@ -17,12 +17,15 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         lua = LuaStateFactory.newLuaState();
+        lua.openLibs();
+        lua.pushJavaObject(this);
 
         EventBus.getDefault().register(this);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(String script) {
+        System.out.println("lua.LdoString: " + script);
         lua.LdoString(script);
         String out = lua.toString(-1);
         EventBus.getDefault().post(new ToolMessageView.ToolResultEvent(out));
