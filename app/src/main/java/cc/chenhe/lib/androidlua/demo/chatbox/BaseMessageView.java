@@ -19,6 +19,15 @@ class BasicMessageView extends LinearLayout {
     TextView m_text;
     BasicChatMessage m_msg;
 
+    View customView = null;
+
+    public void setCustomView(View view) {
+        customView = view;
+        if (customView != null) {
+            addView(view);
+        }
+    }
+
     public void setMessage(BasicChatMessage msg) {
         m_msg = msg;
         final Markwon markwon = Markwon.create(this.getContext());

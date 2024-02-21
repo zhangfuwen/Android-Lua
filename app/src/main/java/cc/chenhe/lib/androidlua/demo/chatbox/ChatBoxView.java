@@ -58,7 +58,15 @@ public class ChatBoxView extends LinearLayout {
             @Override
             public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
                 BasicMessageView view = (BasicMessageView) holder.itemView;
-                view.setMessage(m_messages.get(position));
+                if (m_messages.get(position) instanceof ToolMessageView.ToolMessage) {
+                    BasicChatMessage msg=new BasicChatMessage();
+                    ToolMessageView.ToolMessage toolMessage = (ToolMessageView.ToolMessage) m_messages.get(position);
+                    msg.text = toolMessage.text + "\n```lua\n" +toolMessage.code +"\n```\n"+ toolMessage.result;
+                    view.setMessage(msg);
+
+                } else {
+                    view.setMessage(m_messages.get(position));
+                }
                     view.setGravity(m_messages.get(position).side == BasicChatMessage.Side.LEFT? Gravity.LEFT: Gravity.RIGHT);
             }
 
