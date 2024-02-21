@@ -2,6 +2,7 @@ package cc.chenhe.lib.androidlua.demo.chatbox;
 
 import android.content.Context;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -18,16 +19,16 @@ public class ChatBoxView extends LinearLayout {
 
     public void setMessages(ArrayList<BasicChatMessage> list) {
         m_messages = list;
-        m_recyclerView.scrollToPosition(m_messages.size()-1);
+        scrollToBottom();
     }
     public void addMessage(BasicChatMessage msg) {
         m_messages.add(msg);
-        m_recyclerView.scrollToPosition(m_messages.size());
+        scrollToBottom();
     }
 
     public void updateLastMessage() {
 //        m_messages.set(m_messages.size()-1,msg);
-        m_recyclerView.scrollToPosition(m_messages.size()-1);
+        scrollToBottom();
         m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
     }
     public ChatBoxView(Context context) {
@@ -75,8 +76,35 @@ public class ChatBoxView extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if(changed) {
-            m_recyclerView.scrollToPosition(m_messages.size()-1);
+            scrollToBottom();
         }
 //        m_recyclerView.
+    }
+
+    private void scrollToBottom() {
+        scrollToBottom(m_recyclerView);
+    }
+
+    private void scrollToBottom(final RecyclerView recyclerView) {
+        // scroll to last item to get the view of last item
+        final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        final RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        final int lastItemPosition = adapter.getItemCount() - 1;
+
+        layoutManager.scrollToPositionWithOffset(lastItemPosition, 0);
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                // then scroll to specific offset
+                View target = layoutManager.findViewByPosition(lastItemPosition);
+                if (target != null) {
+                    int offset = recyclerView.getMeasuredHeight() - target.getMeasuredHeight();
+                    layoutManager.scrollToPositionWithOffset(lastItemPosition, offset);
+                }
+            }
+        });
+
+
+
     }
 }
