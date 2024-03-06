@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +50,7 @@ import okhttp3.Response;
 //import top.pulselink.chatglm.ChatClient;
 
 public class ChatAPI {
-
+    String TAG="ChatAPI toolrun:";
     private static final String API_KEY_SECRET = "13a72711b63f05f6232f6d90918c4fc8.sDdZzEm03aRIrujv";
 
 //    private static final ClientV4 client = new ClientV4.Builder(API_KEY_SECRET).build();
@@ -135,11 +136,14 @@ public class ChatAPI {
                     "   }\n" +
                     "}";
 
-            System.out.println("tool is:"+tool);
+            System.out.println(TAG+"tool is:"+tool);
             Class<Object> x = Object.class;
             Object o = gson.fromJson(tool1, x);
-            object.tools.add(o);
+            if (object.tools.isEmpty()) {
+                object.tools.add(o);
+            }
             String json = gson.toJson(object);
+            System.out.println(TAG+"toolrun -- request is:"+json);
             String res = post(url, json);
             return res;
         } catch (IOException e) {
@@ -196,15 +200,18 @@ public class ChatAPI {
                 int readLen = ins.read(all_buffer);
                 int totalReadLen = 0;
                 String lastContent=null;
+                boolean toolCall = false;
+                String res="";
+                ArrayList<String> luaScript= new ArrayList<>();
                 while (readLen > 0) {
                     totalReadLen+=readLen;
-                    String res = new String(all_buffer);
-                    String allContent="";
+                    res = new String(Arrays.copyOfRange(all_buffer, 0, totalReadLen));
 
+                    String allContent="";
                     String[] segments= res.split("\n\n");
                     Gson gson = new Gson();
                     for(String seg : segments) {
-                        System.out.println("seg:" + seg);
+                        System.out.println(TAG+"seg:" + seg);
                         try {
                             if(seg.startsWith("data:")) {
                                 String payload =seg.substring(6);
@@ -226,27 +233,30 @@ public class ChatAPI {
                                         String arguments = function.get("arguments");
                                         Map<String,String> argumentMap = gson.fromJson(arguments, new TypeToken<Map<String, String>>(){});
                                         allContent+= "name--" +name+"\n";
-                                        allContent+= "arguments--" +argumentMap.get("script")+"\n";
-                                        m_callback.onLua(argumentMap.get("script"));
-//                                        return;
+//                                        allContent+= "arguments--" +argumentMap.get("script")+"\n";
+                                        luaScript.add(argumentMap.get("script"));
+                                      toolCall=true;
+                                        m_callback.onLua(luaScript.get(0));
+//                                      break;
 
                                     }
                                     allContent+= tool_calls.toString();
                                 }
-                                System.out.println("success:" + seg);
+                                System.out.println(TAG+"success:" + seg);
                             } else {
 //                                m_callback.onFinish();;
-                                System.out.println("failed to parse: "+seg);
+                                System.out.println(TAG+"failed to parse: "+seg);
+//                                res=seg;
                             }
                         } catch (Exception e) {
 //                            m_callback.onResponse(allContent);
 //                            m_callback.onFinish();;
-                            System.out.println("failed to parse: "+seg);
+                            System.out.println(TAG+"failed to parse: "+seg);
+//                            res=seg;
                         }
                     }
-                    m_callback.onResponse(allContent);
-                    System.out.println("allContent:" + allContent);
-                    System.out.println("res:" + res);
+                    System.out.println(TAG+"allContent:" + allContent);
+                    System.out.println(TAG+"res:" + res);
                     try{
                         Thread.currentThread().sleep(200);
                     }catch (Exception e) {
@@ -256,6 +266,13 @@ public class ChatAPI {
                     lastContent = allContent;
                 }
                 if (lastContent!=null) {
+                    if (!toolCall) {
+                        m_callback.onResponse(lastContent);
+                    } else {
+                        String script = luaScript.get(0);
+//                    m_callback.onLua(script);
+                    }
+
                     Message msg = new Message();
                     msg.role="assistant";
                     msg.content = lastContent;
@@ -317,7 +334,7 @@ public class ChatAPI {
 //        String ret="";
 //        try {
 //            ret = mapper.writeValueAsString(invokeModelApiResp);
-//            System.out.println("model output:" + ret);
+//            System.out.println(TAG+"model output:" + ret);
 //        } catch (JsonProcessingException e) {
 //            e.printStackTrace();
 //        }

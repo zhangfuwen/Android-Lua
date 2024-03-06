@@ -28,6 +28,7 @@ import fun.xjbcode.glm4.ChatAPI;
 @SuppressLint("SetTextI18n")
 public class ChatBoxActivity extends AppCompatActivity {
 
+    String TAG="ChatBoxActivity";
     LinearLayout m_layout = null;
 
     private final ChatAPI chatapi = new ChatAPI();
@@ -134,14 +135,14 @@ public class ChatBoxActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String text = editText.getText().toString();
                 BasicChatMessage msg = new BasicChatMessage();
-                msg.text = text;
+                msg.text = "user:" + text;
                 msg.side= BasicChatMessage.Side.RIGHT;
                 chatBoxView.addMessage(msg);
                 editText.setText("");
 
                 BasicChatMessage m_msg1 = new BasicChatMessage();
                 m_msg1.side= BasicChatMessage.Side.LEFT;
-                m_msg1.text = "";
+                m_msg1.text = "placeholder";
                 chatBoxView.addMessage(m_msg1);
                 chatapi.setCallback(new ChatAPI.ChatCallback() {
                     String m_msg="";
@@ -160,7 +161,7 @@ public class ChatBoxActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(String msg) {
-                        Log.e("xxx", "response:"+msg);
+                        Log.e(TAG, "toolrun response:"+msg);
                         m_msg = msg;
                         m_msg1.side = BasicChatMessage.Side.LEFT;
                         m_msg1.text = msg;
@@ -182,13 +183,15 @@ public class ChatBoxActivity extends AppCompatActivity {
                     @Override
                     public void onLua(String script) {
 //                        EventBus.getDefault().post(script);
-                        System.out.println("onLua");
+                        Log.e(TAG, "toolrun onLua(script): " + script);
                         ToolMessageView.ToolMessage msg = new ToolMessageView.ToolMessage();
                         msg.side= BasicChatMessage.Side.LEFT;
                         msg.text = "# 工具调用";
                         msg.code = script;
+//                        chatBoxView.removeLastMessage();
                         chatBoxView.addMessage(msg);
-                        chatBoxView.updateLastMessage();
+//                        chatBoxView.replaceLastMessage(msg);
+//                        chatBoxView.updateLastMessage();
                     }
                 });
                 chatapi.Chat(msg.text);

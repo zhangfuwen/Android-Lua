@@ -25,10 +25,10 @@ public class MyApplication extends Application {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(String script) {
-        System.out.println("lua.LdoString: " + script);
+        System.out.println("toolrun lua.LdoString: " + script);
         lua.LdoString(script);
         String out = lua.toString(-1);
         EventBus.getDefault().post(new ToolMessageView.ToolResultEvent(out));
-        System.out.println("lua output :" + out);
+        System.out.println("toolrun lua output :" + out);
     }
 }

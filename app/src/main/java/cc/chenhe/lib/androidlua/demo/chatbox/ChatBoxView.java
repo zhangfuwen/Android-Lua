@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 public class ChatBoxView extends LinearLayout {
 
+    static final private String TAG="ChatBoxView";
+
     ArrayList<BasicChatMessage> m_messages = new ArrayList<>();
     RecyclerView m_recyclerView = null;
 
@@ -25,11 +27,27 @@ public class ChatBoxView extends LinearLayout {
         m_messages.add(msg);
         scrollToBottom();
     }
+    public void removeLastMessage() {
+        int position = m_messages.size()-1;
+        m_messages.remove(m_messages.get(position));
+        m_recyclerView.getAdapter().notifyItemRemoved(position);
+//        m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
+        scrollToBottom();
+    }
+    public void replaceLastMessage(BasicChatMessage msg) {
+        int position = m_messages.size()-1;
+        m_messages.set(position, msg);
+//        m_messages.remove(m_messages.get(position));
+//        m_recyclerView.getAdapter().notifyItemRemoved(position);
+        m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
+//        m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
+        scrollToBottom();
+    }
 
     public void updateLastMessage() {
 //        m_messages.set(m_messages.size()-1,msg);
-        scrollToBottom();
         m_recyclerView.getAdapter().notifyItemChanged(m_messages.size()-1);
+        scrollToBottom();
     }
     public ChatBoxView(Context context) {
         super(context);

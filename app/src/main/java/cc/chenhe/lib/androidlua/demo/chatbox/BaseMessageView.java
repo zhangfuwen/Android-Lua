@@ -27,6 +27,7 @@ class BasicMessageView extends LinearLayout {
             this.removeView(m_text);
             addView(view);
         }
+        this.setVisibility(VISIBLE);
     }
 
     public void setMessage(BasicChatMessage msg) {
@@ -43,6 +44,11 @@ class BasicMessageView extends LinearLayout {
         } else {
             m_text.setBackground(getDrawableWithRadius(Color.parseColor("#aaff1f")));
             this.setPadding(40,8,8,40);
+        }
+        if (m_text.getText()=="") {
+            this.setVisibility(INVISIBLE);
+        } else {
+            this.setVisibility(VISIBLE);
         }
 
 
@@ -66,6 +72,11 @@ class BasicMessageView extends LinearLayout {
         this.setPadding(8,8,8,8);
         m_text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
         this.setBackgroundColor(Color.WHITE);
+        if (m_text.getText()=="") {
+            this.setVisibility(INVISIBLE);
+        } else {
+            this.setVisibility(VISIBLE);
+        }
 
 
     }
@@ -80,5 +91,10 @@ class BasicMessageView extends LinearLayout {
         this.setPadding(8,8,8,28);
         m_text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
         this.setBackgroundColor(Color.WHITE);
+        if (m_text.getText()=="") {
+            this.setVisibility(INVISIBLE);
+        } else {
+            this.setVisibility(VISIBLE);
+        }
     }
 }

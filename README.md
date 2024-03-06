@@ -352,3 +352,10 @@ http(function(result, time)
 # 链接
 
 [Android-LuaJIT](https://github.com/liangchenhe55/Android-LuaJIT)
+
+# 架构
+
+```plantuml
+participant ChatAPI
+participant ChatBoxActivity
+```

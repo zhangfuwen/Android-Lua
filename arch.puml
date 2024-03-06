@@ -1,0 +1,31 @@
+@startuml
+actor User
+participant ChatAPI
+participant CallBack
+participant ChatBoxActivity
+
+User -> ChatBoxActivity++: press send button
+ChatBoxActivity -> ChatBoxActivity: add user msg
+ChatBoxActivity -> ChatBoxActivity: add assistant msg
+ChatBoxActivity -> ChatAPI++: query
+create CallBack
+alt normal
+ChatAPI -> CallBack++: onResponse
+CallBack -> ChatBoxActivity++: onResponse
+ChatBoxActivity -> ChatBoxActivity: update last msg
+else tool
+ChatAPI -> CallBack++: onLua
+CallBack -> ChatBoxActivity++: onLua
+ChatBoxActivity -> ChatBoxActivity: removeLastMessage
+ChatBoxActivity -> ChatBoxActivity: add assistant msg
+
+end alt
+
+User -> ChatBoxActivity: press run button
+ChatBoxActivity -> ToolMessageView++ : click
+ToolMessageView -> MyApplication: post code
+MyApplication -> MyApplication: run code
+MyApplication -> ToolMessageView: post result
+ToolMessageView -> ToolMessageView : onMessageEvent
+
+@enduml
